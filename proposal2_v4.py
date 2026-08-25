@@ -200,8 +200,11 @@ def pretrain(model, sequences, epochs=40, batch_size=256, lr=5e-4):
 
 # ── FINE-TUNING ───────────────────────────────────────────────────────────────
 
-def finetune(model, Xs, ys, epochs=60, batch=256, lr=1e-3):
+def finetune(model, Xs, ys, epochs=60, batch=256, lr=5e-4):
     model.add_rul_head(); model.to(DEVICE)
+    # Keep backbone FROZEN � only train the RUL head
+    # This is the correct approach: pre-trained features are valuable
+    # Unfreezing causes gradient explosion with small degradation datasets
     for p in model.cnn.parameters(): p.requires_grad=False
     for p in model.gru.parameters(): p.requires_grad=False
     loader=DataLoader(
@@ -211,28 +214,19 @@ def finetune(model, Xs, ys, epochs=60, batch=256, lr=1e-3):
     opt=torch.optim.Adam(
         filter(lambda p:p.requires_grad,model.parameters()),
         lr=lr,weight_decay=1e-4)
+    sched=torch.optim.lr_scheduler.StepLR(opt,step_size=20,gamma=0.5)
     lf=nn.MSELoss(); model.train()
-    phase1=epochs//2
-    print(f"  Phase 1: head only ({phase1} epochs) ...")
-    for ep in range(phase1):
+    print(f"  Fine-tuning RUL head only ({epochs} epochs, backbone frozen) ...")
+    for ep in range(epochs):
         total=0
         for xb,yb in loader:
             xb,yb=xb.to(DEVICE),yb.to(DEVICE)
-            opt.zero_grad(); loss=lf(model.forward_rul(xb),yb)
+            opt.zero_grad()
+            loss=lf(model.forward_rul(xb),yb)
             loss.backward(); opt.step(); total+=loss.item()
-        if (ep+1)%(phase1//2)==0:
-            print(f"    ep {ep+1} loss={total/len(loader):.2f}")
-    for p in model.parameters(): p.requires_grad=True
-    opt2=torch.optim.Adam(model.parameters(),lr=lr*0.1,weight_decay=1e-4)
-    print(f"  Phase 2: full model ({epochs-phase1} epochs) ...")
-    for ep in range(epochs-phase1):
-        total=0
-        for xb,yb in loader:
-            xb,yb=xb.to(DEVICE),yb.to(DEVICE)
-            opt2.zero_grad(); loss=lf(model.forward_rul(xb),yb)
-            loss.backward(); opt2.step(); total+=loss.item()
-        if (ep+1)%((epochs-phase1)//2)==0:
-            print(f"    ep {ep+1} loss={total/len(loader):.2f}")
+        sched.step()
+        if (ep+1)%15==0:
+            print(f"    ep {ep+1}/{epochs} loss={total/len(loader):.2f}")
     return model
 
 def predict_rul(model, X, batch=256):
@@ -240,8 +234,8 @@ def predict_rul(model, X, batch=256):
     Xt=torch.tensor(X,dtype=torch.float32)
     with torch.no_grad():
         for i in range(0,len(Xt),batch):
-            preds.append(model.forward_rul(
-                Xt[i:i+batch].to(DEVICE)).cpu().numpy())
+            p=model.forward_rul(Xt[i:i+batch].to(DEVICE)).cpu().numpy()
+            preds.append(p)
     return np.clip(np.concatenate(preds),0,RUL_CLIP)
 
 def conf_q(r,cov=0.90):
@@ -255,6 +249,50 @@ def late_cov(y,lo,hi,pred):
     return ((y[late]>=lo[late])&(y[late]<=hi[late])).mean()
 
 # ── MAIN ─────────────────────────────────────────────────────────────────────
+
+def load_kaist_windows(seq_len=SEQ_LEN):
+    files=sorted([f for f in os.listdir(os.path.join(DATA_DIR,"KAIST"))
+                  if f.endswith('.csv')])
+    rms=[]
+    for f in files:
+        try:
+            df=pd.read_csv(os.path.join(DATA_DIR,"KAIST",f),
+                           header=None,nrows=50000)
+            vx=df.iloc[:,0].values.astype(float)
+            vy=df.iloc[:,1].values.astype(float)
+            rms.append([np.sqrt(np.mean(vx**2)),np.sqrt(np.mean(vy**2))])
+        except: continue
+    if len(rms)<seq_len: return None
+    rms=StandardScaler().fit_transform(np.array(rms,dtype=np.float32))
+    seqs=[]
+    for end in range(seq_len,len(rms)+1): seqs.append(rms[end-seq_len:end])
+    return np.array(seqs,dtype=np.float32)
+
+def load_battery_windows(seq_len=SEQ_LEN):
+    import scipy.io as sio
+    bdir=os.path.join(DATA_DIR,"Battery"); all_caps=[]
+    for bname in ['B0005','B0006','B0007','B0018']:
+        mat_path=os.path.join(bdir,f"{bname}.mat")
+        if not os.path.exists(mat_path): continue
+        try:
+            mat=sio.loadmat(mat_path)
+            cycs=mat[bname][0,0]['cycle'][0]
+            caps=[]
+            for c in cycs:
+                if c['type'][0]=='discharge':
+                    try: caps.append(float(c['data'][0,0]['Capacity'][0][-1]))
+                    except: continue
+            if len(caps)>10:
+                caps=np.array(caps,dtype=np.float32).reshape(-1,1)
+                caps=StandardScaler().fit_transform(caps)
+                all_caps.append(caps)
+        except: continue
+    if not all_caps: return None
+    all_caps=np.vstack(all_caps)
+    seqs=[]
+    for end in range(seq_len,len(all_caps)+1,2):
+        seqs.append(all_caps[end-seq_len:end])
+    return np.array(seqs,dtype=np.float32) if seqs else None
 
 def main():
     print("="*62)
@@ -278,6 +316,14 @@ def main():
     if ims is not None:
         all_seqs.append(pad_to(ims,REF_NF))
         print(f"  IMS: {len(ims):,} seqs")
+    kaist=load_kaist_windows()
+    if kaist is not None:
+        all_seqs.append(pad_to(kaist,REF_NF))
+        print(f"  KAIST: {len(kaist):,} seqs")
+    battery=load_battery_windows()
+    if battery is not None:
+        all_seqs.append(pad_to(battery,REF_NF))
+        print(f"  Battery: {len(battery):,} seqs")
     pretrain_seqs=np.vstack(all_seqs)
     np.random.seed(42); np.random.shuffle(pretrain_seqs)
     pretrain_seqs=np.clip(pretrain_seqs,-4.0,4.0)
