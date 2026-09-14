@@ -1,0 +1,30 @@
+{
+  "physionet2012": {
+    "FM_transfer": {
+      "MAE": 3.601,
+      "cov": "89%"
+    },
+    "Scratch": {
+      "MAE": 3.783,
+      "cov": "91%"
+    },
+    "LSTM": {
+      "MAE": 3.527,
+      "cov": "90%"
+    }
+  },
+  "mimic_iv": {
+    "FM_transfer": {
+      "MAE": 3.601,
+      "cov": "94%"
+    },
+    "Scratch": {
+      "MAE": 3.697,
+      "cov": "94%"
+    },
+    "LSTM": {
+      "MAE": 3.681,
+      "cov": "94%"
+    }
+  }
+}
