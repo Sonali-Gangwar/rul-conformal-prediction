@@ -1,0 +1,82 @@
+{
+  "FD001": {
+    "FM": {
+      "MAE_mean": 13.98,
+      "MAE_std": 0.95,
+      "cov_mean": 92.8,
+      "cov_std": 3.1
+    },
+    "Scratch": {
+      "MAE_mean": 14.87,
+      "MAE_std": 1.5,
+      "cov_mean": 94.0,
+      "cov_std": 4.6
+    },
+    "LSTM": {
+      "MAE_mean": 11.84,
+      "MAE_std": 2.02,
+      "cov_mean": 92.0,
+      "cov_std": 3.3
+    }
+  },
+  "FD002": {
+    "FM": {
+      "MAE_mean": 13.61,
+      "MAE_std": 0.29,
+      "cov_mean": 94.2,
+      "cov_std": 2.9
+    },
+    "Scratch": {
+      "MAE_mean": 13.72,
+      "MAE_std": 0.43,
+      "cov_mean": 93.2,
+      "cov_std": 3.0
+    },
+    "LSTM": {
+      "MAE_mean": 14.36,
+      "MAE_std": 0.3,
+      "cov_mean": 92.9,
+      "cov_std": 3.3
+    }
+  },
+  "FD003": {
+    "FM": {
+      "MAE_mean": 16.88,
+      "MAE_std": 1.08,
+      "cov_mean": 90.8,
+      "cov_std": 3.8
+    },
+    "Scratch": {
+      "MAE_mean": 16.27,
+      "MAE_std": 0.72,
+      "cov_mean": 87.6,
+      "cov_std": 4.3
+    },
+    "LSTM": {
+      "MAE_mean": 10.42,
+      "MAE_std": 0.65,
+      "cov_mean": 90.4,
+      "cov_std": 3.0
+    }
+  },
+  "FD004": {
+    "FM": {
+      "MAE_mean": 17.85,
+      "MAE_std": 0.28,
+      "cov_mean": 92.0,
+      "cov_std": 2.1
+    },
+    "Scratch": {
+      "MAE_mean": 17.67,
+      "MAE_std": 0.39,
+      "cov_mean": 92.6,
+      "cov_std": 2.6
+    },
+    "LSTM": {
+      "MAE_mean": 16.04,
+      "MAE_std": 0.58,
+      "cov_mean": 89.0,
+      "cov_std": 4.4
+    }
+  }
+}
