@@ -1,0 +1,76 @@
+{
+  "FD001": {
+    "FM Patch-5 4L (OURS)": {
+      "MAE": 13.38,
+      "coverage": 60.0,
+      "q": 12.4
+    },
+    "No Pre-training": {
+      "MAE": 14.34,
+      "coverage": 51.0,
+      "q": 11.0
+    },
+    "Patch-10 4L": {
+      "MAE": 15.9,
+      "coverage": 61.0,
+      "q": 14.6
+    },
+    "Patch-3 4L": {
+      "MAE": 16.2,
+      "coverage": 46.0,
+      "q": 10.8
+    },
+    "Patch-5 2-Layer": {
+      "MAE": 13.58,
+      "coverage": 52.0,
+      "q": 11.2
+    },
+    "Patch-5 6-Layer": {
+      "MAE": 13.4,
+      "coverage": 61.0,
+      "q": 13.2
+    },
+    "LSTM Baseline": {
+      "MAE": 12.58,
+      "coverage": 35.0,
+      "q": 5.4
+    }
+  },
+  "FD002": {
+    "FM Patch-5 4L (OURS)": {
+      "MAE": 13.41,
+      "coverage": 88.8,
+      "q": 30.5
+    },
+    "No Pre-training": {
+      "MAE": 13.56,
+      "coverage": 88.8,
+      "q": 28.6
+    },
+    "Patch-10 4L": {
+      "MAE": 14.65,
+      "coverage": 91.5,
+      "q": 33.9
+    },
+    "Patch-3 4L": {
+      "MAE": 12.53,
+      "coverage": 84.6,
+      "q": 26.5
+    },
+    "Patch-5 2-Layer": {
+      "MAE": 13.22,
+      "coverage": 90.7,
+      "q": 31.5
+    },
+    "Patch-5 6-Layer": {
+      "MAE": 13.67,
+      "coverage": 87.3,
+      "q": 28.6
+    },
+    "LSTM Baseline": {
+      "MAE": 13.56,
+      "coverage": 59.5,
+      "q": 11.9
+    }
+  }
+}

@@ -35,7 +35,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import xgboost as xgb
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
-BASE_DIR     = r"D:\rul_project\data"
+BASE_DIR     = r"E:\rul_project\data"
 LEARN_DIR    = os.path.join(BASE_DIR, "Learning_set")
 TEST_DIR     = os.path.join(BASE_DIR, "Test_set")
 FULL_DIR     = os.path.join(BASE_DIR, "Full_Test_Set")

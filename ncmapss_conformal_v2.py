@@ -26,7 +26,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import xgboost as xgb
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
-H5_FILE  = r"D:\rul_project\data\data_set\N-CMAPSS_DS03-012.h5"
+H5_FILE  = r"E:\rul_project\data\data_set\N-CMAPSS_DS03-012.h5"
 SEQ_LEN  = 50    # N-CMAPSS has longer sequences — use 50 cycles
 RUL_CLIP = 125
 COVERAGE = 0.90
